@@ -1,0 +1,57 @@
+name: RSS -> Telegram channel
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # every 5 minutes
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: NLTK punkt download
+        run: |
+          python - <<'PY'
+import nltk
+nltk.download('punkt')
+PY
+
+      - name: Run RSS -> Telegram script
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          FEEDS_CSV_URL: ${{ secrets.FEEDS_CSV_URL }}
+          FUZZY_THRESHOLD: ${{ secrets.FUZZY_THRESHOLD }}
+          POSTED_JSON: posted.json
+        run: |
+          python rss_to_telegram.py --feeds-csv "$FEEDS_CSV_URL" --posted-file "posted.json" --fuzzy-threshold "${{ env.FUZZY_THRESHOLD || 88 }}"
+
+      - name: Commit posted.json (if changed)
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "github-actions[bot]"
+          git add posted.json || true
+          if ! git diff --staged --quiet; then
+            git commit -m "Update posted.json (new articles)" || true
+            git push
+          else
+            echo "No changes to commit"
+          fi
