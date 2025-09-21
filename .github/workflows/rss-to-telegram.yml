@@ -23,7 +23,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libxml2-dev libxslt1-dev zlib1g-dev libjpeg-dev libjpeg62-turbo-dev
+          sudo apt-get install -y build-essential libxml2-dev libxslt1-dev zlib1g-dev libjpeg-dev
 
       - name: Install Python dependencies
         run: |
