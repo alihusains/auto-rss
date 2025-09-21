@@ -39,10 +39,13 @@ PY
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           FEEDS_CSV_URL: ${{ secrets.FEEDS_CSV_URL }}
+          # Optional secret to override the fuzzy threshold; if not set, default 88 will be used
           FUZZY_THRESHOLD: ${{ secrets.FUZZY_THRESHOLD }}
+          # If you want to change the posted filename, set POSTED_JSON secret or env here
           POSTED_JSON: posted.json
         run: |
-          python rss_to_telegram.py --feeds-csv "$FEEDS_CSV_URL" --posted-file "posted.json" --fuzzy-threshold "${{ env.FUZZY_THRESHOLD || 88 }}"
+          # Use shell fallback: if FUZZY_THRESHOLD is empty, use 88
+          python rss_to_telegram.py --feeds-csv "$FEEDS_CSV_URL" --posted-file "posted.json" --fuzzy-threshold "${FUZZY_THRESHOLD:-88}"
 
       - name: Commit posted.json (if changed)
         run: |
