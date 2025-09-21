@@ -1,9 +1,9 @@
 name: RSS -> Telegram channel
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '*/5 * * * *'   # every 5 minutes
-  workflow_dispatch: {}
 
 permissions:
   contents: write
