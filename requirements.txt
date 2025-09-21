@@ -1,0 +1,6 @@
+feedparser==6.0.10
+newspaper3k==0.2.8
+requests==2.31.0
+sumy==0.10.0
+rapidfuzz==2.16.1
+nltk==3.8.1
