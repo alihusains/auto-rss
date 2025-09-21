@@ -53,7 +53,6 @@ def main():
 
     posted = load_posted(args.posted_file)
     feeds = read_feeds(args.feeds_csv)
-
     new_posted = posted.copy()
 
     for feed in feeds:
