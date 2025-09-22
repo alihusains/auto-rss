@@ -3,7 +3,7 @@ name: RSS to Telegram channel ⭐️
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/5 * * * *'   # every 5 minutes
 
 permissions:
   contents: write
@@ -11,7 +11,6 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,11 +20,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Python dependencies (fresh, no cache)
+      - name: Install Python dependencies (fresh install)
         run: |
           python -m pip install --upgrade pip
           pip install --upgrade wheel
-          # Force fresh installs to avoid CI-cached broken wheels
           pip install --no-cache-dir --force-reinstall \
             "feedparser==6.0.10" \
             "newspaper3k==0.2.8" \
@@ -43,11 +41,10 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           FEEDS_CSV_URL: ${{ secrets.FEEDS_CSV_URL }}
+          # optional secret - if empty, script picks default
           FUZZY_THRESHOLD: ${{ secrets.FUZZY_THRESHOLD }}
         run: |
-          python rss_to_telegram.py --feeds-csv "$FEEDS_CSV_URL" \
-                                     --posted-file "posted.json" \
-                                     --fuzzy-threshold "${FUZZY_THRESHOLD:-88}"
+          python rss_to_telegram.py --feeds-csv "$FEEDS_CSV_URL" --posted-file "posted.json" --fuzzy-threshold "${FUZZY_THRESHOLD:-88}"
 
       - name: Commit posted.json (if changed)
         run: |
